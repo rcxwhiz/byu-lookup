@@ -336,6 +336,9 @@ class Term:
 	def yearterm(self) -> str:
 		return f'{self.year}{self.term}'
 
+	def get_departments(self) -> list[Department]:
+		return [Department(row['name'], row['abbreviation']) for _, row in self.departments.iterrows()]
+
 	def get_courses(self) -> list[Course]:
 		courses = []
 		for index, row in self.courses.iterrows():

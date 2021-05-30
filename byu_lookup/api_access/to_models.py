@@ -8,7 +8,9 @@ from byu_lookup.model import Term, Department, Instructor, Building, Course, Sec
 
 
 def get_term_model(year: int, term: int) -> Term:
-	return Term(year, term, datetime.datetime.now(), [], [], set(), set())
+	term = Term(year, term, datetime.datetime.now())
+	populate_term(term)
+	return term
 
 
 def get_department_models(department_map: dict) -> dict[str, Department]:
@@ -96,19 +98,16 @@ def get_classes_models(classes_response: dict, term: Term, departements: dict[st
 	return courses, sections
 
 
-def get_term_data(year: int, term: int) -> dict:
-	print(f'Getting term {year}-{term}')
-	year_term = f'{year}{term}'
+# TODO change all of this to be editing the pandas dataframe stuff in the given term
+def populate_term(term: Term) -> None:
+	print(f'Populating term {term.yearterm()}')
 	data = {}
-	term_response = apis.get_year_term(year_term)
+	term_response = apis.get_year_term(term.yearterm())
 
-	data['term_model'] = get_term_model(year, term)
 	data['department_models'] = get_department_models(term_response['department_map'])
 	data['instructor_models'] = get_instructor_models(term_response['instructor_list'])
 	data['building_models'] = get_building_models(term_response['building_list'])
 
 	session_id = apis.make_session_id()
 
-	classes_response = apis.get_classes(term_response['department_list'], year_term, session_id)
-
-	return data
+	classes_response = apis.get_classes(term_response['department_list'], term.yearterm(), session_id)
