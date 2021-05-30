@@ -1,16 +1,13 @@
-# This is a sample Python script.
+import datetime
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+import byu_lookup.model
 
 
-# Press the green button in the gutter to run the script.
+def run():
+    term = byu_lookup.model.Term(0, 0, datetime.datetime.now())
+    print(term.sections)
+    print(term.sections.dtypes)
+
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    run()
