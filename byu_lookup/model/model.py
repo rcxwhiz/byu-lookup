@@ -34,7 +34,6 @@ class Building:
 		return self.name >= other.name
 
 
-
 class Department:
 	def __init__(self, name: str, abbreviation: str):
 		self.name: str = name.title()
@@ -211,7 +210,7 @@ class SectionMode:
 		return self.section_mode >= other.section_mode
 
 
-class Sectiontime:
+class SectionTime:
 	def __init__(self,
 	             section_ref,
 	             begin_time: datetime.time,
@@ -241,28 +240,28 @@ class Sectiontime:
 		self.saturday: bool = saturday
 
 	def __eq__(self, other):
-		return isinstance(other, Sectiontime) and self.sequence_num == other.sequence_num
+		return isinstance(other, SectionTime) and self.sequence_num == other.sequence_num
 
 	def __ne__(self, other):
-		return not isinstance(other, Sectiontime) or self.sequence_num != other.sequence_num
+		return not isinstance(other, SectionTime) or self.sequence_num != other.sequence_num
 
 	def __lt__(self, other):
-		if not isinstance(other, Sectiontime):
+		if not isinstance(other, SectionTime):
 			raise TypeError()
 		return self.section_ref < other.section_ref or (self.section_ref == other.section_ref and self.sequence_num < other.sequence_num)
 
 	def __le__(self, other):
-		if not isinstance(other, Sectiontime):
+		if not isinstance(other, SectionTime):
 			raise TypeError()
 		return self.section_ref < other.section_ref or (self.section_ref == other.section_ref and self.sequence_num <= other.sequence_num)
 
 	def __gt__(self, other):
-		if not isinstance(other, Sectiontime):
+		if not isinstance(other, SectionTime):
 			raise TypeError()
 		return self.section_ref > other.section_ref or (self.section_ref == other.section_ref and self.sequence_num > other.sequence_num)
 
 	def __ge__(self, other):
-		if not isinstance(other, Sectiontime):
+		if not isinstance(other, SectionTime):
 			raise TypeError()
 		return self.section_ref > other.section_ref or (self.section_ref == other.section_ref and self.sequence_num >= other.sequence_num)
 
@@ -388,7 +387,7 @@ class Section:
 	             class_size: int,
 	             waitlist_size: int,
 	             section_mode: SectionMode,
-	             section_times: SortedSet[Sectiontime],
+	             section_times: SortedSet[SectionTime],
 	             instructor_section_roles: SortedSet[InstructorSectionRole]):
 		self.course: Course = course
 		self.section_num: int = section_num
@@ -404,7 +403,7 @@ class Section:
 		self.class_size: int = class_size
 		self.waitlist_size: int = waitlist_size
 		self.section_mode: SectionMode = section_mode
-		self.section_times: SortedSet[Sectiontime] = section_times
+		self.section_times: SortedSet[SectionTime] = section_times
 		self.instructor_section_roles: SortedSet[InstructorSectionRole] = instructor_section_roles
 
 	def __eq__(self, other):
