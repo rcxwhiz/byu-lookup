@@ -637,6 +637,9 @@ class Term:
 		self.courses: SortedSet[Course] = courses
 		self.collection_time = collection_time
 
+	def year_term(self) -> str:
+		return f'{self.year}{self.term}'
+
 	def make_course(self,
 	                curriculum_id: int,
 	                title_code: int,
@@ -805,16 +808,16 @@ class DataSet:
 		return ct
 
 	def make_instructor(self,
-	                   sort_name: str,
-	                   last_name: str,
-	                   first_name: str,
-	                   person_id: int,
-	                   byu_id: int,
-	                   net_id: str,
-	                   surname: str,
-	                   rest_of_name: str,
-	                   preferred_first_name: str,
-	                   phone_number: str) -> Instructor:
+	                    sort_name: str,
+	                    last_name: str,
+	                    first_name: str,
+	                    person_id: int,
+	                    byu_id: int,
+	                    net_id: str,
+	                    surname: str,
+	                    rest_of_name: str,
+	                    preferred_first_name: str,
+	                    phone_number: str) -> Instructor:
 		instructor = Instructor(sort_name,
 		                        last_name,
 		                        first_name,

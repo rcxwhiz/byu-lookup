@@ -56,10 +56,8 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 			                          course_response['catalog']['prerequisite'],
 			                          course_response['catalog']['recommended'],
 			                          course_response['catalog']['credit_hours'],
-			                          course_response['catalog']['lecture_hours'] if course_response['catalog'][
-				                                                                         'lecture_hours'] is not None else -1,
-			                          course_response['catalog']['lab_hours'] if course_response['catalog'][
-				                                                                     'lab_hours'] is not None else -1,
+			                          course_response['catalog']['lecture_hours'],
+			                          course_response['catalog']['lab_hours'],
 			                          course_response['catalog']['honors_approved'] == 'Y',
 			                          course_response['catalog']['catalog_prereq'],
 			                          course_response['catalog']['when_taught'])
@@ -84,13 +82,13 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 
 
 def populate_term(term: Term) -> None:
-	print(f'Populating term {term.yearterm()}')
+	print(f'Populating term {term.year_term()}')
 
-	term_response = apis.get_year_term(term.yearterm())
+	term_response = apis.get_year_term(term.year_term())
 
-	add_departments(term_response['department_map'], term)
-	add_instructors(term_response['instructor_list'], term)
-	add_buildings(term_response['building_list'], term)
+	add_departments(term_response['department_map'], term.data_set_ref)
+	add_instructors(term_response['instructor_list'], term.data_set_ref)
+	add_buildings(term_response['building_list'], term.data_set_ref)
 
 	session_id = apis.make_session_id()
 
