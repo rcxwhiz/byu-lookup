@@ -17,6 +17,7 @@ def get_term_model(year: int, term: int) -> Term:
 def add_departments(department_map: dict, term: Term) -> None:
 	for name, abbr in tqdm.tqdm(department_map.items(), desc='Parsing department map'):
 		term.add_dept(name, abbr)
+	print(f'Deparments: {term.departments}')
 
 
 def add_instructors(instructor_list: list, term: Term) -> None:
@@ -24,7 +25,7 @@ def add_instructors(instructor_list: list, term: Term) -> None:
 		term.add_instructor(instructor['sort_name'],
 		                    instructor['last_name'],
 		                    instructor['first_name'],
-		                    instructor['person_id'],
+		                    instructor['id'],
 		                    None,
 		                    None,
 		                    None,
@@ -41,8 +42,8 @@ def add_buildings(building_list: list, term: Term) -> None:
 async def add_classes(classes_response: dict, term: Term, session_id: str) -> None:
 	with tqdm.asyncio.tqdm(classes_response.items(), desc='Parsing courses') as course_queue:
 		async for course_id, course in course_queue:
-			curriculum_id = course['curriculum_id']
-			title_code = course['title_code']
+			curriculum_id = int(course['curriculum_id'])
+			title_code = int(course['title_code'])
 
 			course_response = apis.get_course(curriculum_id, title_code, session_id, term.yearterm())
 
@@ -53,7 +54,6 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 			                course['catalog_suffix'],
 			                course['title'],
 			                course['full_title'],
-			                course_response['catalog']['header_text'],
 			                course_response['catalog']['effective_date'].split()[0],
 			                course_response['catalog']['expired_date'].split()[0],
 			                course_response['catalog']['effective_year_term'],
@@ -94,6 +94,9 @@ def populate_term(term: Term) -> None:
 	print(f'Populating term {term.yearterm()}')
 
 	term_response = apis.get_year_term(term.yearterm())
+	# print(f'TERM RESPONSE:'
+	#       f'{term_response}')
+	# print('\n' * 4)
 
 	add_departments(term_response['department_map'], term)
 	add_instructors(term_response['instructor_list'], term)
@@ -102,6 +105,9 @@ def populate_term(term: Term) -> None:
 	session_id = apis.make_session_id()
 
 	classes_response = apis.get_classes(term_response['department_list'], term.yearterm(), session_id)
+	# print(f'CLASSES RESPONSE:'
+	#       f'{classes_response}')
+	# print('\n' * 4)
 
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(add_classes(classes_response, term, session_id))

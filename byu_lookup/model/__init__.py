@@ -1,6 +1,7 @@
 import datetime
-
 import pandas as pd
+
+import betta
 
 departments_schema = {'name': str,
                       'abbreviation': str}
@@ -24,7 +25,6 @@ courses_schema = {'curriculum_id': int,
                   'catalog_suffix': str,
                   'title': str,
                   'full_title': str,
-                  'header_text': str,
                   'effective_date': 'datetime64',
                   'expired_date': 'datetime64',
                   'effective_yearterm': str,
@@ -73,6 +73,12 @@ section_times_schema = {'section': int,
                         'thursday': bool,
                         'friday': bool,
                         'saturday': bool}
+
+term_to_id = {'winter': 1,
+              'spring': 3,
+              'summer': 4,
+              'fall': 5}
+id_to_term = {v: k for k, v in term_to_id.items()}
 
 
 class Department:
@@ -145,7 +151,6 @@ class Course:
 	             catalog_suffix: str,
 	             title: str,
 	             full_title: str,
-	             header_text: str,
 	             effective_date: datetime.datetime,
 	             expired_date: datetime.datetime,
 	             effective_year_term: str,
@@ -169,7 +174,6 @@ class Course:
 		self.catalog_suffix: str = catalog_suffix
 		self.title: str = title
 		self.full_title: str = full_title
-		self.header_text: str = header_text
 		self.effective_date: datetime.datetime = effective_date
 		self.expired_date: datetime.datetime = expired_date
 		self.effective_year_term: str = effective_year_term
@@ -353,7 +357,6 @@ class Term:
 			                      row['catalog_suffix'],
 			                      row['title'],
 			                      row['full_title'],
-			                      row['header_text'],
 			                      row['effective_date'],
 			                      row['expired_date'],
 			                      row['effective_yearterm'],
@@ -415,9 +418,10 @@ class Term:
 
 	def add_dept(self, name: str, abbreviation: str) -> None:
 		try:
-			self.departments.append({'name': name, 'abbreviation': abbreviation}, ignore_index=True, verify_integrity=True)
-		except ValueError:
-			pass
+			self.departments.append([name, abbreviation])
+			# self.departments.append({'name': name, 'abbreviation': abbreviation}, ignore_index=True, verify_integrity=True)
+		except ValueError as e:
+			print(f'Got an error saving a dept: {e}')
 
 	def add_instructor(self,
 	                   sort_name: str,
@@ -460,7 +464,6 @@ class Term:
 	               catalog_suffix: str,
 	               title: str,
 	               full_title: str,
-	               header_text: str,
 	               effective_date: datetime.datetime,
 	               expired_date: datetime.datetime,
 	               effective_yearterm: str,
@@ -476,7 +479,9 @@ class Term:
 	               honors_approved: str,
 	               catalog_prereq: str,
 	               when_taught: str) -> None:
-		dept_row = self.departments.iloc[self.departments['name'] == department_name]
+		print(f'Going to look for {department_name} in')
+		print(self.departments)
+		dept_row = betta.data.get_first_matching_row(self.departments, 'name', department_name)
 		dept_index = dept_row.index
 		try:
 			self.courses.append({'curriculum_id': curriculum_id,
@@ -486,7 +491,6 @@ class Term:
 			                     'catalog_suffix': catalog_suffix,
 			                     'title': title,
 			                     'full_title': full_title,
-			                     'header_text': header_text,
 			                     'effective_date': effective_date,
 			                     'expired_date': expired_date,
 			                     'effective_yearterm': effective_yearterm,
