@@ -15,15 +15,15 @@ def add_departments(department_map: dict, data_set: DataSet) -> None:
 def add_instructors(instructor_list: list, data_set: DataSet) -> None:
 	for instructor in tqdm.tqdm(instructor_list, desc='Parsing instructors'):
 		data_set.make_instructor(instructor['sort_name'],
-			                     instructor['last_name'],
-			                     instructor['first_name'],
-			                     instructor['id'],
-			                     None,
-			                     None,
-			                     None,
-			                     None,
-			                     None,
-			                     None)
+		                         instructor['last_name'],
+		                         instructor['first_name'],
+		                         instructor['id'],
+		                         None,
+		                         None,
+		                         None,
+		                         None,
+		                         None,
+		                         None)
 
 
 def add_buildings(building_list: list, data_set: DataSet) -> None:
@@ -40,43 +40,47 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 			course_response = apis.get_course(curriculum_id, title_code, session_id, term.yearterm())
 
 			course = term.make_course(curriculum_id,
-			                title_code,
-			                course['dept_name'],
-			                course['catalog_number'],
-			                course['catalog_suffix'],
-			                course['title'],
-			                course['full_title'],
-			                course_response['catalog']['effective_date'].split()[0],
-			                course_response['catalog']['expired_date'].split()[0],
-			                course_response['catalog']['effective_year_term'],
-			                course_response['catalog']['expired_year_term'],
-			                course_response['catalog']['description'],
-			                course_response['catalog']['note'],
-			                course_response['catalog']['offered'],
-			                course_response['catalog']['prerequisite'],
-			                course_response['catalog']['recommended'],
-			                course_response['catalog']['credit_hours'],
-			                course_response['catalog']['lecture_hours'] if course_response['catalog']['lecture_hours'] is not None else -1,
-			                course_response['catalog']['lab_hours'] if course_response['catalog']['lab_hours'] is not None else -1,
-			                course_response['catalog']['honors_approved'] == 'Y',
-			                course_response['catalog']['catalog_prereq'],
-			                course_response['catalog']['when_taught'])
+			                          title_code,
+			                          course['dept_name'],
+			                          course['catalog_number'],
+			                          course['catalog_suffix'],
+			                          course['title'],
+			                          course['full_title'],
+			                          course_response['catalog']['effective_date'].split()[0],
+			                          course_response['catalog']['expired_date'].split()[0],
+			                          course_response['catalog']['effective_year_term'],
+			                          course_response['catalog']['expired_year_term'],
+			                          course_response['catalog']['description'],
+			                          course_response['catalog']['note'],
+			                          course_response['catalog']['offered'],
+			                          course_response['catalog']['prerequisite'],
+			                          course_response['catalog']['recommended'],
+			                          course_response['catalog']['credit_hours'],
+			                          course_response['catalog']['lecture_hours'] if course_response['catalog'][
+				                                                                         'lecture_hours'] is not None else -1,
+			                          course_response['catalog']['lab_hours'] if course_response['catalog'][
+				                                                                     'lab_hours'] is not None else -1,
+			                          course_response['catalog']['honors_approved'] == 'Y',
+			                          course_response['catalog']['catalog_prereq'],
+			                          course_response['catalog']['when_taught'])
 
 			for section in course_response['sections']:
-				course.make_section(section['section_number'],
-				                 section['fixed_or_variable'],
-				                 section['credit_hours'],
-				                 section['minimum_credit_hours'],
-				                 section['honors'] == 'Y',
-				                 section['credit_type'],
-				                 section['section_type'],
-				                 section['start_date'],
-				                 section['end_date'],
-				                 section['availability']['seats_available'],
-				                 section['availability']['class_size'],
-				                 section['availability']['waitlist_size'],
-				                 section['mode'],
-				                 section['mode_desc'])
+				credit_type = term.data_set_ref.get_credit_type(section['credit_type'])
+				section_type = term.data_set_ref.get_section_type(section['section_type'])
+				section_mode = term.data_set_ref.get_section_mode(section['mode'], section['mode_desc'])
+				sec = course.make_section(section['section_number'],
+				                          section['fixed_or_variable'],
+				                          section['credit_hours'],
+				                          section['minimum_credit_hours'],
+				                          section['honors'] == 'Y',
+				                          credit_type,
+				                          section_type,
+				                          section['start_date'],
+				                          section['end_date'],
+				                          section['availability']['seats_available'],
+				                          section['availability']['class_size'],
+				                          section['availability']['waitlist_size'],
+				                          section_mode)
 
 
 def populate_term(term: Term) -> None:
