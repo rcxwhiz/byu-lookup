@@ -2,6 +2,12 @@ import datetime
 import pickle
 from sortedcontainers import SortedSet
 
+id_to_term = {1: 'winter',
+              3: 'spring',
+              4: 'summer',
+              5: 'fall'}
+term_to_id = {v: k for k, v in id_to_term.items()}
+
 
 class Building:
 	def __init__(self, name: str):
@@ -129,22 +135,26 @@ class Instructor:
 	def __lt__(self, other):
 		if not isinstance(other, Instructor):
 			raise TypeError()
-		return self.sort_name < other.sort_name or (self.sort_name == other.sort_name and self.person_id < other.person_id)
+		return self.sort_name < other.sort_name or (
+				self.sort_name == other.sort_name and self.person_id < other.person_id)
 
 	def __le__(self, other):
 		if not isinstance(other, Instructor):
 			raise TypeError()
-		return self.sort_name <= other.sort_name or (self.sort_name == other.sort_name and self.person_id <= other.person_id)
+		return self.sort_name <= other.sort_name or (
+				self.sort_name == other.sort_name and self.person_id <= other.person_id)
 
 	def __gt__(self, other):
 		if not isinstance(other, Instructor):
 			raise TypeError()
-		return self.sort_name > other.sort_name or (self.sort_name == other.sort_name and self.person_id > other.person_id)
+		return self.sort_name > other.sort_name or (
+				self.sort_name == other.sort_name and self.person_id > other.person_id)
 
 	def __ge__(self, other):
 		if not isinstance(other, Instructor):
 			raise TypeError()
-		return self.sort_name >= other.sort_name or (self.sort_name == other.sort_name and self.person_id >= other.person_id)
+		return self.sort_name >= other.sort_name or (
+				self.sort_name == other.sort_name and self.person_id >= other.person_id)
 
 
 class CreditType:
@@ -248,22 +258,26 @@ class SectionTime:
 	def __lt__(self, other):
 		if not isinstance(other, SectionTime):
 			raise TypeError()
-		return self.section_ref < other.section_ref or (self.section_ref == other.section_ref and self.sequence_num < other.sequence_num)
+		return self.section_ref < other.section_ref or (
+				self.section_ref == other.section_ref and self.sequence_num < other.sequence_num)
 
 	def __le__(self, other):
 		if not isinstance(other, SectionTime):
 			raise TypeError()
-		return self.section_ref < other.section_ref or (self.section_ref == other.section_ref and self.sequence_num <= other.sequence_num)
+		return self.section_ref < other.section_ref or (
+				self.section_ref == other.section_ref and self.sequence_num <= other.sequence_num)
 
 	def __gt__(self, other):
 		if not isinstance(other, SectionTime):
 			raise TypeError()
-		return self.section_ref > other.section_ref or (self.section_ref == other.section_ref and self.sequence_num > other.sequence_num)
+		return self.section_ref > other.section_ref or (
+				self.section_ref == other.section_ref and self.sequence_num > other.sequence_num)
 
 	def __ge__(self, other):
 		if not isinstance(other, SectionTime):
 			raise TypeError()
-		return self.section_ref > other.section_ref or (self.section_ref == other.section_ref and self.sequence_num >= other.sequence_num)
+		return self.section_ref > other.section_ref or (
+				self.section_ref == other.section_ref and self.sequence_num >= other.sequence_num)
 
 
 class SectionType:
@@ -504,6 +518,39 @@ class Course:
 		self.when_taught: str = when_taught
 		self.sections: SortedSet[Section] = sections
 
+	def make_section(self,
+	                 section_num: int,
+	                 fixed_or_variable: str,
+	                 credit_hours: float,
+	                 min_credit_hours: float,
+	                 is_honors: bool,
+	                 credit_type: CreditType,
+	                 section_type: SectionType,
+	                 start_date: datetime.date,
+	                 end_date: datetime.date,
+	                 seats_available: int,
+	                 class_size: int,
+	                 waitlist_size: int,
+	                 section_mode: SectionMode) -> Section:
+		section = Section(self,
+		                  section_num,
+		                  fixed_or_variable,
+		                  credit_hours,
+		                  min_credit_hours,
+		                  is_honors,
+		                  credit_type,
+		                  section_type,
+		                  start_date,
+		                  end_date,
+		                  seats_available,
+		                  class_size,
+		                  waitlist_size,
+		                  section_mode,
+		                  SortedSet(),
+		                  SortedSet())
+		self.sections.add(section)
+		return section
+
 	def __eq__(self, other):
 		return isinstance(other, Course) \
 		       and self.term_ref == other.term_ref \
@@ -582,12 +629,63 @@ class Course:
 
 
 class Term:
-	def __init__(self, data_set_ref, year: int, term: int, courses: SortedSet[Course], collection_time: datetime.datetime):
+	def __init__(self, data_set_ref, year: int, term: int, courses: SortedSet[Course],
+	             collection_time: datetime.datetime):
 		self.data_set_ref: DataSet = data_set_ref
 		self.year: int = year
 		self.term: int = term
 		self.courses: SortedSet[Course] = courses
 		self.collection_time = collection_time
+
+	def make_course(self,
+	                curriculum_id: int,
+	                title_code: int,
+	                department: Department,
+	                catalog_num: int,
+	                catalog_suffix: str,
+	                title: str,
+	                full_title: str,
+	                effective_date: datetime.date,
+	                expired_date: datetime.date,
+	                effective_year_term: str,
+	                expired_year_term: str,
+	                description: str,
+	                note: str,
+	                offered: str,
+	                prerequisite: str,
+	                recommended: str,
+	                credit_hours: float,
+	                lecture_hours: float,
+	                lab_hours: float,
+	                honors_approved: str,
+	                catalog_prereq: str,
+	                when_taught: str) -> Course:
+		course = Course(self,
+		                curriculum_id,
+		                title_code,
+		                department,
+		                catalog_num,
+		                catalog_suffix,
+		                title,
+		                full_title,
+		                effective_date,
+		                expired_date,
+		                effective_year_term,
+		                expired_year_term,
+		                description,
+		                note,
+		                offered,
+		                prerequisite,
+		                recommended,
+		                credit_hours,
+		                lecture_hours,
+		                lab_hours,
+		                honors_approved,
+		                catalog_prereq,
+		                when_taught,
+		                SortedSet())
+		self.courses.add(course)
+		return course
 
 	def __eq__(self, other):
 		return isinstance(other, Term) \
@@ -669,6 +767,7 @@ class Term:
 class DataSet:
 	def __init__(self,
 	             buildings: SortedSet[Building],
+	             departments: SortedSet[Department],
 	             credit_types: SortedSet[CreditType],
 	             instructors: SortedSet[Instructor],
 	             instructor_role_types: SortedSet[InstructorRoleType],
@@ -676,12 +775,116 @@ class DataSet:
 	             section_types: SortedSet[SectionType],
 	             terms: SortedSet[Term]):
 		self.buildings: SortedSet[Building] = buildings
+		self.departments: SortedSet[Department] = departments
 		self.credit_types: SortedSet[CreditType] = credit_types
 		self.instructors: SortedSet[Instructor] = instructors
 		self.instructor_role_types: SortedSet[InstructorRoleType] = instructor_role_types
 		self.section_modes: SortedSet[SectionMode] = section_modes
 		self.section_types: SortedSet[SectionType] = section_types
 		self.terms: SortedSet[Term] = terms
+
+	def make_term(self, year: int, term: int) -> Term:
+		term = Term(self, year, term, SortedSet(), datetime.datetime.now())
+		self.terms.remove(term)
+		self.terms.add(term)
+		return term
+
+	def get_building(self, name: str) -> Building:
+		building = Building(name)
+		self.buildings.add(building)
+		return building
+
+	def get_department(self, name: str, abbreviation: str) -> Department:
+		dept = Department(name, abbreviation)
+		self.departments.add(dept)
+		return dept
+
+	def get_credit_type(self, credit_type: str) -> CreditType:
+		ct = CreditType(credit_type)
+		self.credit_types.add(ct)
+		return ct
+
+	def make_instructor(self,
+	                   sort_name: str,
+	                   last_name: str,
+	                   first_name: str,
+	                   person_id: int,
+	                   byu_id: int,
+	                   net_id: str,
+	                   surname: str,
+	                   rest_of_name: str,
+	                   preferred_first_name: str,
+	                   phone_number: str) -> Instructor:
+		instructor = Instructor(sort_name,
+		                        last_name,
+		                        first_name,
+		                        person_id,
+		                        byu_id,
+		                        net_id,
+		                        surname,
+		                        rest_of_name,
+		                        preferred_first_name,
+		                        phone_number)
+		self.instructors.add(instructor)
+		return instructor
+
+	def update_instructor(self,
+	                      person_id: int,
+	                      last_name: str = None,
+	                      first_name: str = None,
+	                      byu_id: int = None,
+	                      net_id: str = None,
+	                      surname: str = None,
+	                      rest_of_name: str = None,
+	                      preferred_first_name: str = None,
+	                      phone_number: str = None) -> None:
+		for instructor in self.instructors:
+			if instructor.person_id == person_id:
+				if last_name:
+					instructor.last_name = last_name
+				if first_name:
+					instructor.first_name = first_name
+				if byu_id:
+					instructor.byu_id = byu_id
+				if net_id:
+					instructor.net_id = net_id
+				if surname:
+					instructor.surname = surname
+				if rest_of_name:
+					instructor.rest_of_name = rest_of_name
+				if preferred_first_name:
+					instructor.preferred_first_name = preferred_first_name
+				if phone_number:
+					instructor.phone_number = phone_number
+				return None
+		raise ValueError(f'Person ID {person_id} not found')
+
+	def get_instructor(self, person_id: int) -> Instructor:
+		for instructor in self.instructors:
+			if instructor.person_id == person_id:
+				return instructor
+		raise ValueError(f'Person ID {person_id} not found')
+
+	def get_instructor_role_type(self, instructor_role_type: str) -> InstructorRoleType:
+		irt = InstructorRoleType(instructor_role_type)
+		self.instructor_role_types.add(irt)
+		return irt
+
+	def get_section_mode(self, mode: str, description: str) -> SectionMode:
+		section_mode = SectionMode(mode, description)
+		self.section_modes.add(section_mode)
+		return section_mode
+
+	def get_section_type(self, section_type: str) -> SectionType:
+		st = SectionType(section_type)
+		self.section_types.add(st)
+		return st
+
+	def get_term(self, year: int, term: int) -> Term:
+		for t in self.terms:
+			if t.year == year and t.term == term:
+				return t
+		raise ValueError(f'Term {year}{term} not found')
 
 
 def load_data_set(file: str) -> DataSet:

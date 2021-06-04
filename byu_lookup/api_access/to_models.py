@@ -1,23 +1,15 @@
 import asyncio
-import datetime
-
 import tqdm
 import tqdm.asyncio
 
 from byu_lookup.api_access import apis
-from byu_lookup.model import Term
+from byu_lookup.model import DataSet
 
 
-def get_term_model(year: int, term: int) -> Term:
-	term = Term(year, term, datetime.datetime.now())
-	populate_term(term)
-	return term
-
-
-def add_departments(department_map: dict, term: Term) -> None:
+def add_departments(department_map: dict, data_set: DataSet) -> None:
 	for name, abbr in tqdm.tqdm(department_map.items(), desc='Parsing department map'):
-		term.add_dept(name, abbr)
-	print(f'Deparments: {term.departments}')
+		data_set.get_department(name, abbr)
+	print(f'Deparments: {data_set.departments}')
 
 
 def add_instructors(instructor_list: list, term: Term) -> None:

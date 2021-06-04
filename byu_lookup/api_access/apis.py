@@ -14,7 +14,7 @@ course_api = 'http://saasta.byu.edu/noauth/classSchedule/ajax/getSections.php'
 def check_year_term_valid(year_term: str) -> None:
 	year = int(year_term[:4])
 	term = int(year_term[4:])
-	if year > datetime.date.today().year or year < 2015:
+	if year > datetime.date.today().year + 1 or year < 2015:
 		raise ValueError('Year out of range')
 	if term not in byu_lookup.model.id_to_term.keys():
 		raise ValueError('Invalid term')
