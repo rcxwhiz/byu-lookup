@@ -3,7 +3,7 @@ import tqdm
 import tqdm.asyncio
 
 from byu_lookup.api_access import apis
-from byu_lookup.model import DataSet
+from byu_lookup.model import DataSet, Term
 
 
 def add_departments(department_map: dict, data_set: DataSet) -> None:
@@ -12,23 +12,23 @@ def add_departments(department_map: dict, data_set: DataSet) -> None:
 	print(f'Deparments: {data_set.departments}')
 
 
-def add_instructors(instructor_list: list, term: Term) -> None:
+def add_instructors(instructor_list: list, data_set: DataSet) -> None:
 	for instructor in tqdm.tqdm(instructor_list, desc='Parsing instructors'):
-		term.add_instructor(instructor['sort_name'],
-		                    instructor['last_name'],
-		                    instructor['first_name'],
-		                    instructor['id'],
-		                    None,
-		                    None,
-		                    None,
-		                    None,
-		                    None,
-		                    None)
+		data_set.make_instructor(instructor['sort_name'],
+			                     instructor['last_name'],
+			                     instructor['first_name'],
+			                     instructor['id'],
+			                     None,
+			                     None,
+			                     None,
+			                     None,
+			                     None,
+			                     None)
 
 
-def add_buildings(building_list: list, term: Term) -> None:
+def add_buildings(building_list: list, data_set: DataSet) -> None:
 	for building in tqdm.tqdm(building_list, desc='Parsing buildings'):
-		term.add_building(building['building'])
+		data_set.get_building(building['building'])
 
 
 async def add_classes(classes_response: dict, term: Term, session_id: str) -> None:
@@ -39,7 +39,7 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 
 			course_response = apis.get_course(curriculum_id, title_code, session_id, term.yearterm())
 
-			term.add_course(curriculum_id,
+			course = term.make_course(curriculum_id,
 			                title_code,
 			                course['dept_name'],
 			                course['catalog_number'],
@@ -63,10 +63,7 @@ async def add_classes(classes_response: dict, term: Term, session_id: str) -> No
 			                course_response['catalog']['when_taught'])
 
 			for section in course_response['sections']:
-				# TODO still need to add the instructor stuff here
-				term.add_section(curriculum_id,
-				                 title_code,
-				                 section['section_number'],
+				course.make_section(section['section_number'],
 				                 section['fixed_or_variable'],
 				                 section['credit_hours'],
 				                 section['minimum_credit_hours'],
@@ -86,9 +83,6 @@ def populate_term(term: Term) -> None:
 	print(f'Populating term {term.yearterm()}')
 
 	term_response = apis.get_year_term(term.yearterm())
-	# print(f'TERM RESPONSE:'
-	#       f'{term_response}')
-	# print('\n' * 4)
 
 	add_departments(term_response['department_map'], term)
 	add_instructors(term_response['instructor_list'], term)
@@ -97,9 +91,6 @@ def populate_term(term: Term) -> None:
 	session_id = apis.make_session_id()
 
 	classes_response = apis.get_classes(term_response['department_list'], term.yearterm(), session_id)
-	# print(f'CLASSES RESPONSE:'
-	#       f'{classes_response}')
-	# print('\n' * 4)
 
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(add_classes(classes_response, term, session_id))
