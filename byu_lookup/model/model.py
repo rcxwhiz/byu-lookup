@@ -11,7 +11,10 @@ term_to_id = {v: k for k, v in id_to_term.items()}
 
 class Building:
 	def __init__(self, name: str):
-		self.name: str = name.title()
+		self.name: str = name.capitalize()
+
+	def __str__(self):
+		return self.name
 
 	def __hash__(self):
 		return hash(self.name)
@@ -48,6 +51,9 @@ class Department:
 		self.name: str = name.title()
 		self.abbreviation: str = abbreviation.upper()
 
+	def __str__(self):
+		return self.name
+
 	def __hash__(self):
 		return hash(self.abbreviation)
 
@@ -81,6 +87,9 @@ class Department:
 class InstructorRoleType:
 	def __init__(self, instructor_role_type: str):
 		self.instructor_role_type = instructor_role_type.capitalize()
+
+	def __str__(self):
+		return self.instructor_role_type
 
 	def __hash__(self):
 		return hash(self.instructor_role_type)
@@ -135,6 +144,14 @@ class Instructor:
 		self.preferred_first_name: str = preferred_first_name
 		self.phone_number: str = phone_number
 
+	def __str__(self):
+		if self.sort_name is not None:
+			return self.sort_name
+		elif self.surname is not None and self.rest_of_name is not None:
+			return f'{self.surname}, {self.rest_of_name}'
+		else:
+			return f'{self.person_id:09}'
+
 	def __hash__(self):
 		return hash(self.person_id)
 
@@ -171,7 +188,10 @@ class Instructor:
 
 class CreditType:
 	def __init__(self, credit_type: str):
-		self.credit_type = credit_type.lower()
+		self.credit_type = credit_type.capitalize()
+
+	def __str__(self):
+		return self.credit_type
 
 	def __hash__(self):
 		return hash(self.credit_type)
@@ -207,6 +227,9 @@ class SectionMode:
 	def __init__(self, section_mode: str, description: str):
 		self.section_mode: str = section_mode.capitalize()
 		self.description: str = description.capitalize() if description is not None else None
+
+	def __str__(self):
+		return self.section_mode
 
 	def __hash__(self):
 		return hash(self.section_mode)
@@ -267,14 +290,35 @@ class SectionTime:
 		self.friday: bool = friday
 		self.saturday: bool = saturday
 
+	def __str__(self):
+		s = f'{self.section_ref} - {self.sequence_num} '
+		if self.sunday:
+			s += 'Su'
+		if self.monday:
+			s += 'M'
+		if self.tuesday:
+			s += 'Tu'
+		if self.wednesday:
+			s += 'W'
+		if self.thursday:
+			s += 'Th'
+		if self.friday:
+			s += 'F'
+		if self.saturday:
+			s += 'Sa'
+		s += f' {self.begin_time}-{self.end_time}'
+		return s
+
 	def __hash__(self):
 		return hash(self.section_ref) ^ hash(self.sequence_num)
 
 	def __eq__(self, other):
-		return isinstance(other, SectionTime) and self.section_ref == other.section_ref and self.sequence_num == other.sequence_num
+		return isinstance(other,
+		                  SectionTime) and self.section_ref == other.section_ref and self.sequence_num == other.sequence_num
 
 	def __ne__(self, other):
-		return not isinstance(other, SectionTime) or self.section_ref != other.section_ref or self.sequence_num != other.sequence_num
+		return not isinstance(other,
+		                      SectionTime) or self.section_ref != other.section_ref or self.sequence_num != other.sequence_num
 
 	def __lt__(self, other):
 		if not isinstance(other, SectionTime):
@@ -304,6 +348,9 @@ class SectionTime:
 class SectionType:
 	def __init__(self, section_type: str):
 		self.section_type: str = section_type.capitalize()
+
+	def __str__(self):
+		return self.section_type
 
 	def __hash__(self):
 		return hash(self.section_type)
@@ -343,6 +390,9 @@ class InstructorSectionRole:
 		self.section_ref: Section = section_ref
 		self.instructor: Instructor = instructor
 		self.instructor_role_type: InstructorRoleType = instructor_role_type
+
+	def __str__(self):
+		return f'{self.section_ref} - {self.instructor} - {self.instructor_role_type}'
 
 	def __hash__(self):
 		return hash(self.section_ref) ^ hash(self.instructor) ^ hash(self.instructor_role_type)
@@ -446,6 +496,9 @@ class Section:
 		self.section_mode: SectionMode = section_mode
 		self.section_times: SortedSet[SectionTime] = section_times
 		self.instructor_section_roles: SortedSet[InstructorSectionRole] = instructor_section_roles
+
+	def __str__(self):
+		return f'{self.course} - {self.section_num:03}'
 
 	def add_role(self, instructor: Instructor, role: InstructorRoleType) -> InstructorSectionRole:
 		role = InstructorSectionRole(self, instructor, role)
@@ -582,6 +635,9 @@ class Course:
 		self.when_taught: str = when_taught
 		self.sections: SortedSet[Section] = sections
 
+	def __str__(self):
+		return f'{self.department.abbreviation} {self.catalog_num}{self.catalog_suffix if self.catalog_suffix is not None else ""}'
+
 	def make_section(self,
 	                 section_num: int,
 	                 fixed_or_variable: str,
@@ -642,7 +698,8 @@ class Course:
 				if self.catalog_num < other.catalog_num:
 					return True
 				elif self.catalog_num == other.catalog_num:
-					if (self.catalog_suffix if self.catalog_suffix is not None else '') < (other.catalog_suffix if other.catalog_suffix is not None else ''):
+					if (self.catalog_suffix if self.catalog_suffix is not None else '') < (
+					other.catalog_suffix if other.catalog_suffix is not None else ''):
 						return True
 		return False
 
@@ -658,7 +715,8 @@ class Course:
 				if self.catalog_num < other.catalog_num:
 					return True
 				elif self.catalog_num == other.catalog_num:
-					if (self.catalog_suffix if self.catalog_suffix is not None else '') <= (other.catalog_suffix if other.catalog_suffix is not None else ''):
+					if (self.catalog_suffix if self.catalog_suffix is not None else '') <= (
+					other.catalog_suffix if other.catalog_suffix is not None else ''):
 						return True
 		return False
 
@@ -674,7 +732,8 @@ class Course:
 				if self.catalog_num > other.catalog_num:
 					return True
 				elif self.catalog_num == other.catalog_num:
-					if (self.catalog_suffix if self.catalog_suffix is not None else '') > (other.catalog_suffix if other.catalog_suffix is not None else ''):
+					if (self.catalog_suffix if self.catalog_suffix is not None else '') > (
+					other.catalog_suffix if other.catalog_suffix is not None else ''):
 						return True
 		return False
 
@@ -690,7 +749,8 @@ class Course:
 				if self.catalog_num > other.catalog_num:
 					return True
 				elif self.catalog_num == other.catalog_num:
-					if (self.catalog_suffix if self.catalog_suffix is not None else '') >= (other.catalog_suffix if other.catalog_suffix is not None else ''):
+					if (self.catalog_suffix if self.catalog_suffix is not None else '') >= (
+					other.catalog_suffix if other.catalog_suffix is not None else ''):
 						return True
 		return False
 
@@ -703,6 +763,9 @@ class Term:
 		self.term: int = term
 		self.courses: SortedSet[Course] = courses
 		self.collection_time = collection_time
+
+	def __str__(self):
+		return f'{id_to_term[self.term].capitalize()} {self.year}'
 
 	def year_term(self) -> str:
 		return f'{self.year}{self.term}'
@@ -827,6 +890,7 @@ class Term:
 
 class DataSet:
 	def __init__(self,
+	             save_path: str,
 	             buildings: SortedSet[Building],
 	             departments: SortedSet[Department],
 	             credit_types: SortedSet[CreditType],
@@ -835,6 +899,7 @@ class DataSet:
 	             section_modes: SortedSet[SectionMode],
 	             section_types: SortedSet[SectionType],
 	             terms: SortedSet[Term]):
+		self.save_path: str = save_path
 		self.buildings: SortedSet[Building] = buildings
 		self.departments: SortedSet[Department] = departments
 		self.credit_types: SortedSet[CreditType] = credit_types
@@ -843,6 +908,12 @@ class DataSet:
 		self.section_modes: SortedSet[SectionMode] = section_modes
 		self.section_types: SortedSet[SectionType] = section_types
 		self.terms: SortedSet[Term] = terms
+
+	def __str__(self):
+		return f'Data set at {self.save_path}'
+
+	def save(self):
+		save_data_set(self.save_path, self)
 
 	def make_term(self, year: int, term: int) -> Term:
 		term = Term(self, year, term, SortedSet(), datetime.datetime.now())
@@ -958,6 +1029,21 @@ class DataSet:
 			if t.year == year and t.term == term:
 				return t
 		raise ValueError(f'Term {year}{term} not found')
+
+
+def get_data_set(file: str) -> DataSet:
+	try:
+		return load_data_set(file)
+	except (FileExistsError, FileNotFoundError):
+		return DataSet(file,
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet())
 
 
 def load_data_set(file: str) -> DataSet:

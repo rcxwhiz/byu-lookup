@@ -1,1 +1,1 @@
-from byu_lookup.model.model import id_to_term, term_to_id, Building, Department, InstructorRoleType, Instructor, CreditType, SectionMode, SectionTime, SectionType, InstructorSectionRole, Section, Course, Term, DataSet, load_data_set, save_data_set
+from byu_lookup.model.model import id_to_term, term_to_id, Building, Department, InstructorRoleType, Instructor, CreditType, SectionMode, SectionTime, SectionType, InstructorSectionRole, Section, Course, Term, DataSet, get_data_set, load_data_set, save_data_set
