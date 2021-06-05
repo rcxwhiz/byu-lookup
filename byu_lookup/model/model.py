@@ -1031,7 +1031,17 @@ class DataSet:
 		raise ValueError(f'Term {year}{term} not found')
 
 
-def get_data_set(file: str) -> DataSet:
+def get_data_set(file: str, load: bool = True) -> DataSet:
+	if not load:
+		return DataSet(file,
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet(),
+		               SortedSet())
 	try:
 		return load_data_set(file)
 	except (FileExistsError, FileNotFoundError):
